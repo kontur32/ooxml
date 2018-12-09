@@ -1,5 +1,5 @@
 module namespace restDocx= "http://iro37.ru/xq/modules/docx/rest";
-import module namespace docx= "http://iro37.ru/xq/modules/docx" at "docx.xqm";
+import module namespace docx= "http://iro37.ru/xq/modules/docx" at "fillDocxForm.xqm";
 
 declare
   %rest:POST("{$data}")

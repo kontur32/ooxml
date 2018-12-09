@@ -1,13 +1,12 @@
 module namespace restDocx = "http://iro37.ru/xq/modules/docx/rest";
 
 declare 
-  %rest:path ( "/docx/get" )
+  %rest:path ( "/docx/заполниШаблон.docx" )
   %rest:method ( "GET" )
   %rest:query-param ( "template", "{$tplPath}" )
   %rest:query-param ( "data", "{$dataPath}" )
   %output:media-type( "application/octet-stream" )
 function restDocx:get ( $tplPath as xs:string, $dataPath as xs:string) {
-  
   let $tpl := 
     try {
       fetch:binary ( iri-to-uri ( $tplPath ) )
