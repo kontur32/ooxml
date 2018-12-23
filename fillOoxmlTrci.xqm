@@ -4,26 +4,24 @@ declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/m
 
 declare 
 function 
-  docx:tpl-with-trci ( 
+  docx:fillTemplateWithTrci ( 
     $rowTpl as xs:base64Binary, 
     $data as element ( table ) 
   ) as xs:base64Binary {
-  
+    
   let $xmlTpl := 
       parse-xml ( 
           archive:extract-text($rowTpl,  'word/document.xml')
       )/w:document
-  
-  let $result := docx:ooxml-with-trci ( $xmlTpl, $data )
-  
+  let $result := docx:fillOoxmlWithTrci ( $xmlTpl, $data )
   return 
-    archive:update( $rowTpl, "word/document.xml", serialize($result) )     
+    archive:update( $rowTpl, "word/document.xml", serialize( $result ) )     
 };
 
 declare
   %private 
 function 
-  docx:ooxml-with-trci ( 
+  docx:fillOoxmlWithTrci ( 
     $template as element ( w:document ), 
     $data as element ( table ) 
   )  {

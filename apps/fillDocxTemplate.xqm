@@ -1,26 +1,31 @@
 module namespace restDocx = "http://iro37.ru/xq/modules/docx/rest";
 
+import module namespace request = "http://exquery.org/ns/request";
+
 declare 
-  %rest:path ( "/docx/api/заполниШаблон.docx" )
+  %rest:path ( "/docx/api/заполниТитул.docx" )
   %rest:method ( "GET" )
-  %rest:query-param ( "template", "{ $tplPath }" )
-  %rest:query-param ( "data", "{ $dataPath }" )
+  %rest:query-param ( "template", "{ $template }" )
   %output:media-type( "application/octet-stream" )
-function restDocx:get ( $tplPath as xs:string, $dataPath as xs:string) {
+function restDocx:get ( $template as xs:string ) {
   let $tpl := 
     try {
-      fetch:binary ( iri-to-uri ( $tplPath ) )
+      fetch:binary ( iri-to-uri ( $template ) )
     }
     catch * { 
     }
-  
-  let $data := 
-    try {
-      fetch:xml ( iri-to-uri( $dataPath ) )
-    }
-    catch * {    
-    }
-  
+    
+  let $data :=
+    <table>
+      <row id="fields">
+      {
+        for $param in request:parameter-names()
+        return 
+          <cell id="{ $param }">{request:parameter( $param )}</cell>
+      }
+      </row>
+    </table>     
+    
   let $request :=
     <http:request method='post'>
       <http:multipart media-type = "multipart/*" >
@@ -36,8 +41,8 @@ function restDocx:get ( $tplPath as xs:string, $dataPath as xs:string) {
   let $response := 
     http:send-request(
       $request,
-      'http://localhost:8984/docx/post'
+      'http://localhost:8984/docx/api/fillTemplate'
   )
-  return 
-   $response[2]
+  return
+   $response[ 2 ]
 };
