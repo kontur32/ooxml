@@ -1,5 +1,7 @@
 module namespace docx= "http://iro37.ru/xq/modules/docx";
- 
+import module namespace fields = "http://iro37.ru/xq/modules/docx/fields/replace" 
+  at "replaceFieldsInTemplate.xqm"; 
+
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
 declare 
@@ -14,6 +16,7 @@ function
           archive:extract-text($rowTpl,  'word/document.xml')
       )/w:document
   let $result := docx:fillOoxmlWithTrci ( $xmlTpl, $data )
+  
   return 
     archive:update( $rowTpl, "word/document.xml", serialize( $result ) )     
 };
@@ -34,6 +37,8 @@ function
              replace node $fld/w:instrText with <w:t>{ $data/row [ @id = "fields" ]/cell [@id = $field ]/text() }</w:t>
     
     let $resultFlds := $result update delete node ./w:body/w:p/w:r[ w:fldChar ]
+    
+    let $resultFlds := fields:replaceFieldsInTemplate ( $template, $data )  
     
     let $resultTbl := 
         $resultFlds update 
