@@ -2,6 +2,42 @@ module namespace fields= "http://iro37.ru/xq/modules/docx/fields/replace";
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
+(:~
+ : Эта функция заменяет поля в шаблоне документа.
+ : @param $template  шаблон в формате w:document
+ : @param $data  данные для заполения шаблона в формате TRCI
+ : @return возвращает обработанный w:document
+ :)
+declare
+  %public 
+function fields:replaceFieldsInTemplate (
+  $template as element ( w:document ),
+  $data as element ( table )
+) as element( w:document ) {
+   $template update 
+   for $p in ./w:body/w:p[ w:r[ w:fldChar ] ]
+   for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
+
+   let $fieldsToBeReplased := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
+   
+   let $replaceWith := fields:replaceWith ( $fieldsToBeReplased, $data )
+   return
+     if( $replaceWith )
+     then
+      (
+        insert node $replaceWith before $r,
+        delete node $fieldsToBeReplased,
+        delete node $r
+      )
+      else ()
+};
+
+(:~
+ : Эта функция возвращает позицию конечного узла w:r поля, начинающегося
+ : с первого узла $r.
+ : @param $r узлы w:r, начиная от первого узла поля и до конца документа
+ : @return число
+ :)
 declare 
   %private 
 function fields:endPos( $r as element (w:r) ) as xs:integer {
@@ -15,9 +51,15 @@ function fields:endPos( $r as element (w:r) ) as xs:integer {
    return $endPos[1]  
 };
 
+(:~
+ : Эта функция генерирует строку, которой должно быть заменено поле.
+ : @param $fieldRuns  узлы поля
+ : @param $data  данные для заполения шаблона в формате TRCI
+ : @return возвращает строку
+ :)
 declare 
   %private 
-function fields:toReplace (
+function fields:replaceWith (
   $fieldRuns as element(w:r)*, 
   $data as element(table)
 ) as element(w:r)* {
@@ -34,28 +76,4 @@ function fields:toReplace (
          }
        )
        else ( )
-};
-
-declare
-  %public 
-function fields:replaceFieldsInTemplate (
-  $xmlTpl as element ( w:document ),
-  $data as element ( table )
-) as element( w:document ) {
-   $xmlTpl update 
-   for $p in ./w:body/w:p[w:r[w:fldChar]]
-   for  $r in $p/w:r[w:fldChar/@w:fldCharType="begin"]
-
-   let $fld := $r/following-sibling::*[position()<=fields:endPos( $r )]
-   
-   let $toReplace := fields:toReplace ($fld, $data)
-   return
-     if( $toReplace )
-     then
-      (
-        insert node  $toReplace before $r,
-        delete node $fld,
-        delete node $r
-      )
-      else ()
 };
