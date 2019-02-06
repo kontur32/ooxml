@@ -3,7 +3,7 @@ import module namespace docx= "http://iro37.ru/xq/modules/docx" at "modules/docx
 
 declare
   %rest:POST("{ $data }")
-  %rest:path ( "/docx/api/fillTemplate" )
+  %rest:path ( "/ooxml/api/v1/docx/single" ) (:/docx/api/fillTemplate:)
   %rest:consumes( "multipart/form-data" ) 
   %output:media-type( "application/octet-stream" )
 function  restDocx:fillTemplateSingle ( $data ) {
@@ -15,7 +15,7 @@ function  restDocx:fillTemplateSingle ( $data ) {
 
 declare
   %rest:POST
-  %rest:path ( "/ooxml/api/v1/docx/single" )
+  %rest:path ( "/ooxml/api/v1/docx/single1" )
   %rest:consumes( "multipart/form-data" ) 
   %rest:form-param( "data", "{ $data }" )
   %rest:form-param( "template", "{ $template }" )
