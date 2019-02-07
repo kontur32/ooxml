@@ -17,11 +17,26 @@ declare
   %rest:path ( "/ooxml/api/v1/docx/fields" )
   %rest:consumes( "multipart/form-data" ) 
   %rest:form-param( "template", "{ $template }" )
-  %output:method( "csv" )
-function docx:getFieldsAsString ( $template ) {
+  %output:method("text")
+function docx:getFieldsAsString ( $template as xs:base64Binary ) {
     let $xmlTpl := 
       parse-xml ( 
           archive:extract-text( $template,  'word/document.xml' )
       )/w:document
-    return fields:getFieldsAsString ( $xmlTpl )
+    return
+    serialize (
+    <csv>
+    { 
+      for $i in fields:getFieldsAsString ( $xmlTpl )
+      return 
+        <record>
+          <label>{$i}</label>
+        </record>
+    }
+    </csv>,
+    map {
+    'method': 'csv',
+    'csv': map { 'header': 'no', 'separator': '|' }
+    }
+   )
 };
