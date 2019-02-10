@@ -19,6 +19,7 @@ declare
   %rest:form-param( "template", "{ $template }" )
   %output:method("text")
 function docx:getFieldsAsString ( $template as xs:base64Binary ) {
+    
     let $xmlTpl := 
       parse-xml ( 
           archive:extract-text( $template,  'word/document.xml' )
@@ -36,7 +37,7 @@ function docx:getFieldsAsString ( $template as xs:base64Binary ) {
     </csv>,
     map {
     'method': 'csv',
-    'csv': map { 'header': 'no', 'separator': '|' }
+    'csv': map { 'header': 'no'}
     }
    )
 };
