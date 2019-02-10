@@ -2,10 +2,10 @@ module namespace fields= "http://iro37.ru/xq/modules/docx/fields/replace";
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
-declare variable $fields:delimiter := "|";
+declare variable $fields:delimiter := ";";
 
 (:~
- : ЕЩЕ НЕ РАБОТАЕТ
+ : АЛЬФА ВЕРСИЯ
  : Эта функция возвращает поля из шаблона в виде стоки.
  : @param $template  шаблон в формате w:document
  : @param $data  данные для заполения шаблона в формате TRCI
@@ -18,9 +18,9 @@ function fields:getFieldsAsString (
 ) as xs:string* {
    for $p in $template/w:body/w:p[ w:r[ w:fldChar ] ]
    for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
-   let $fieldsToBeReplased := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
+   let $fieldsToBeReplaсed := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
    return 
-      normalize-space( string-join( $fieldsToBeReplased ) )
+      normalize-space( string-join( $fieldsToBeReplaсed ) )
 };
 
 
@@ -44,6 +44,7 @@ function fields:replaceFieldsInTemplate (
    let $fieldsToBeReplased := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
    
    let $replaceWith := fields:replaceWith ( $fieldsToBeReplased, $data )
+   
    return
      if( $replaceWith )
      then
@@ -96,12 +97,13 @@ function fields:replaceWith (
        else (
          $string
        )
-     
+     let $rPr := $fieldRuns/w:rPr[1]
      return
        if ( $data/row[ @id="fields" ]/cell[ @id=$fieldAsText ] )
        then ( 
          element { "w:r" }{
            attribute { "w:rsidR"} { "filldocx" },
+           $rPr, (: свойства блока текста из шаблона, в т.ч. стиль :)
            element { "w:t" } {
               attribute { "xml:space" } { "preserve" },
               $data/row/cell[ @id=$fieldAsText ]/text()
