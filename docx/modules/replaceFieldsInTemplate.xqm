@@ -16,7 +16,7 @@ declare
 function fields:getFieldsAsString (
   $template as element ( w:document )
 ) as xs:string* {
-   for $p in $template/w:body/w:p[ w:r[ w:fldChar ] ]
+   for $p in $template//w:p[ w:r[ w:fldChar ] ]
    for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
    let $fieldsToBeReplaсed := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
    return 
@@ -38,7 +38,7 @@ function fields:replaceFieldsInTemplate (
   $data as element ( table )
 ) as element( w:document ) {
    $template update 
-   for $p in ./w:body/w:p[ w:r[ w:fldChar ] ]
+   for $p in .//w:p[ w:r[ w:fldChar ] ]
    for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
 
    let $fieldsToBeReplased := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
