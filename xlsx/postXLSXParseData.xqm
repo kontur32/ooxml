@@ -15,11 +15,14 @@ function postXLSX:post ( $data, $model ) {
   Parse:data( $trciData, $trciModel , "http://localhost:8984/trac/api/processing/parse/")
 };
 
+(:
 declare
-  %rest:POST ( "{ $data }" )
-  %rest:path ( "/xlsx/api/parse1" )
-  %rest:consumes( "multipart/mixed" )
-  %output:media-type( "xml" )
-function postXLSX:post1 ( $data ) {
-  $data[2]
+  %rest:POST
+  %rest:path (  "/xlsx/api/parse/raw-trci" )
+  %rest:form-param ( "data", "{$data}" )
+  %rest:consumes( "multipart/form-data" )
+  %output:method( "xml" ) 
+function  postXLSX:fillTemplateMulti ( $data ){
+ Parse:from-xlsx( xs:base64Binary($data) )
 };
+:)
