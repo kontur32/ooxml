@@ -1,6 +1,6 @@
 module namespace postXLSX = "http://iro37.ru/xq/modules/xlsx";
 
-import module namespace Parse = "http://www.iro37.ru/stasova/TRCI-parse" at "parseTRCI.xqm";
+import module namespace parseTRCI = "http://www.iro37.ru/stasova/TRCI-parse" at "funct/parseTRCI.xqm";
 
 declare
   %rest:POST
@@ -8,11 +8,11 @@ declare
   %rest:form-param( "data", "{ $data }" )
   %rest:form-param( "model", "{ $model }" )
   %output:media-type( "xml" )
-function postXLSX:post ( $data, $model ) {
- let $trciData := Parse:from-xlsx( map:get ( $data, map:keys ( $data )[1] ) )
+function postXLSX:parseData ( $data, $model ) {
+ let $trciData := parseTRCI:from-xlsx( map:get ( $data, map:keys ( $data )[1] ) )
  let $trciModel :=  parse-xml( convert:binary-to-string( map:get( $model, map:keys( $model )[1] ) ) )/table
  return
-  Parse:data( $trciData, $trciModel , "http://localhost:8984/trac/api/processing/parse/")
+  parseTRCI:data( $trciData, $trciModel , "http://localhost:8984/trac/api/processing/parse/")
 };
 
 (:
