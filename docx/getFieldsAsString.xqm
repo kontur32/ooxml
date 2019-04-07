@@ -1,7 +1,7 @@
 module namespace docx= "http://iro37.ru/xq/modules/docx/getFieldsAsString";
 
 import module namespace fields = "http://iro37.ru/xq/modules/docx/fields/replace" 
-  at "../docx/modules/replaceFieldsInTemplate.xqm"; 
+  at "../docx/lib/replaceFieldsInTemplate.xqm"; 
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 

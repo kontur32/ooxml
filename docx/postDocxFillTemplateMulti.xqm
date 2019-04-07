@@ -1,6 +1,6 @@
 module namespace restDocx= "http://iro37.ru/xq/modules/docx/rest";
 
-import module namespace docx= "http://iro37.ru/xq/modules/docx" at "modules/docxFillWithTrci.xqm";
+import module namespace docx= "http://iro37.ru/xq/modules/docx" at "lib/docxFillWithTrci.xqm";
 
 declare
   %rest:POST
