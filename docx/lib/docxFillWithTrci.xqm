@@ -5,6 +5,9 @@ import module namespace fields = "http://iro37.ru/xq/modules/docx/fields/replace
 import module namespace 
   tables= "http://iro37.ru/xq/modules/docx/tables/replace" 
   at "replaceTablesInTemplate.xqm";
+  
+import  module namespace pic= "http://iro37.ru/xq/modules/docx/pic/replace" 
+  at "replacePicturesInTemplate.xqm";
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
 
@@ -21,9 +24,13 @@ function
           archive:extract-text( $template,  'word/document.xml' )
       )/w:document
   let $result := docx:fillOoxmlWithTrci ( $xmlTpl, $data )
-  
+  let $newPic := pic:replacePicturesInTemplate( $template, $data )
   return 
-    archive:update( $template, "word/document.xml", serialize( $result ) )     
+    archive:update( 
+      $template, 
+      ( $newPic?newPicPath, "word/document.xml"), 
+      ( $newPic?newPicBin, serialize( $result ) )
+     )     
 };
 
 declare
