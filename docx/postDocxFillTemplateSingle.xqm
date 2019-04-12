@@ -33,7 +33,7 @@ function  restDocx:fillTemplateSingle( $data as xs:string, $template as xs:base6
 (: ------------ старый варинат ---------------------------:)
 declare
   %rest:POST("{ $data }")
-  %rest:path ( "/ooxml/api/v1/docx/single" ) (:/docx/api/fillTemplate:)
+  %rest:path ( "/ooxml/api/v1/docx/single1" ) (:/docx/api/fillTemplate:)
   %rest:consumes( "multipart/*" ) 
   %output:media-type( "application/octet-stream" )
 function  restDocx:fillTemplateSingle1 ( $data ) {
