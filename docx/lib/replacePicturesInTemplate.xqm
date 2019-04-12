@@ -31,7 +31,7 @@ function pic:replacePicturesInTemplate (
 let $picTitleToReplace := $xmlTpl//w:drawing/wp:inline/wp:docPr/@title[ data() = $data/row[ @id = "pictures" ]/cell/@id/data() ]/data()
 
 let $newPicPath := 
- for $picRec in $xmlTpl//w:drawing[wp:inline/wp:docPr/@title/data() = $picTitleToReplace ]
+ for $picRec in $xmlTpl//w:drawing[ wp:inline/wp:docPr/@title/data() = $picTitleToReplace ]
  let $picId := $picRec//a:blip/@r:embed/data()
  let $picLink := "word/" || xs:string( $rels/child::*/child::*[ @Id = $picId ]/@Target/data() )
  return $picLink
@@ -41,5 +41,7 @@ let $newPicBin :=
   return xs:base64Binary( $p )
 
 return 
-  map { "newPicPath" : $newPicPath, "newPicBin" : $newPicBin}   
+  archive:update( 
+      $template, $newPicPath,  $newPicBin 
+   )   
 };

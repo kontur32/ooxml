@@ -18,18 +18,19 @@ function
     $template as xs:base64Binary, 
     $data as element ( table ) 
   ) as xs:base64Binary {
-    
+  
+  let $templateWithPic := pic:replacePicturesInTemplate( $template, $data )
   let $xmlTpl := 
       parse-xml ( 
-          archive:extract-text( $template,  'word/document.xml' )
+          archive:extract-text( $templateWithPic,  'word/document.xml' )
       )/w:document
   let $result := docx:fillOoxmlWithTrci ( $xmlTpl, $data )
-  let $newPic := pic:replacePicturesInTemplate( $template, $data )
+ 
   return 
     archive:update( 
-      $template, 
-      ( $newPic?newPicPath, "word/document.xml"), 
-      ( $newPic?newPicBin, serialize( $result ) )
+      $templateWithPic, 
+      "word/document.xml", 
+      serialize( $result )
      )     
 };
 
