@@ -1,6 +1,7 @@
 module namespace fields= "http://iro37.ru/xq/modules/docx/fields/replace";
 
 declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/main";
+declare namespace wp = "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing";
 
 declare variable $fields:delimiter := ";";
 
@@ -16,11 +17,18 @@ declare
 function fields:getFieldsAsString (
   $template as element ( w:document )
 ) as xs:string* {
-   for $p in $template//w:p[ w:r[ w:fldChar ] ]
-   for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
-   let $fieldsToBeReplaсed := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
-   return 
-      normalize-space( string-join( $fieldsToBeReplaсed ) )
+  let $fieldsList :=
+     for $p in $template//w:p[ w:r[ w:fldChar ] ]
+     for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
+     let $fieldsToBeReplaсed := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
+     return 
+        normalize-space( string-join( $fieldsToBeReplaсed ) )
+  let $picList := 
+    for $pic in $template//w:drawing/wp:inline/wp:docPr/@title/data()
+    return 
+      $pic || " ; inputType :: img "
+  return 
+    ( $fieldsList, $picList )
 };
 
 
