@@ -19,7 +19,14 @@ function
     $data as element ( table ) 
   ) as xs:base64Binary {
   
-  let $templateWithPic := pic:replacePicturesInTemplate( $template, $data )
+  let $templateWithPic := 
+    if( $data/row[ @id = "pictures" ]/cell[1]/text() )
+    then(
+       pic:replacePicturesInTemplate( $template, $data )
+    )
+    else(
+      $template
+    )
   let $xmlTpl := 
       parse-xml ( 
           archive:extract-text( $templateWithPic,  'word/document.xml' )
