@@ -114,7 +114,7 @@ function fields:replaceWith (
            $rPr, (: свойства блока текста из шаблона, в т.ч. стиль :)
            element { "w:t" } {
               attribute { "xml:space" } { "preserve" },
-              $data/row/cell[ @id=$fieldAsText ]/text()
+              normalize-space( $data/row/cell[ @id=$fieldAsText ]/text() )
            }
          }
        )
