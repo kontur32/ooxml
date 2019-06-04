@@ -6,10 +6,12 @@ declare
   %rest:path ( "/xlsx/api/v1/trci/bind/meta" )
   %rest:POST
   %rest:form-param ( "data", "{ $data }" )
+  %rest:form-param ( "model", "{ $model }" )
   %rest:form-param ( "modelPath", "{ $modelPath }" )
-function trciBindMeta:main( $data, $modelPath ){
-  let $d := doc( $data )/table
-  let $model := fetch:xml ( $modelPath )/table
+function trciBindMeta:main( $data, $model, $modelPath ){
+  let $d := parse-xml( $data )/table
+  let $model1 := fetch:xml ( $modelPath )/table
+  let $m := parse-xml( $model )/table
   return
-    trci:data( $d, $model, "" )
+    trci:data( $d, $m, "" )
 };
