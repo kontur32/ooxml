@@ -7,10 +7,8 @@ declare
   %rest:POST
   %rest:form-param ( "data", "{ $data }" )
   %rest:form-param ( "model", "{ $model }" )
-  %rest:form-param ( "modelPath", "{ $modelPath }" )
-function trciBindMeta:main( $data, $model, $modelPath ){
+function trciBindMeta:main( $data, $model ){
   let $d := parse-xml( $data )/table
-  let $model1 := fetch:xml ( $modelPath )/table
   let $m := parse-xml( $model )/table
   return
     trci:data( $d, $m, "" )
