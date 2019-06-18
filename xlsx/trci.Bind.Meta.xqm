@@ -8,8 +8,8 @@ declare
   %rest:form-param ( "data", "{ $data }" )
   %rest:form-param ( "model", "{ $model }" )
 function trciBindMeta:main( $data, $model ){
-  let $d := parse-xml( $data )/table
-  let $m := parse-xml( $model )/table
+  let $d as element( table ) := parse-xml( $data )/table
+  let $m as element( table ) := parse-xml( $model )/table
   return
     trci:data( $d, $m, "" )
 };
