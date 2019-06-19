@@ -55,7 +55,11 @@ function parse:data (
               $c/text(),
               $parserUrl || $modelCell/cell[@id="parser"]/text() ) 
           )
-          else ( $c/text() ) 
+          else (
+              if( $c/child::* )
+              then( $c/child::* )
+              else( $c/text() )
+          ) 
         
         return
           element {"cell"} {
