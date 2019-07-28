@@ -30,43 +30,64 @@ function pic:replacePicturesInTemplate (
          archive:extract-text( $template,  'word/_rels/document.xml.rels' )
         )
 
-let $picTitleToReplace := 
-  for $p in $xmlTpl//w:drawing/wp:inline/wp:docPr/@title[ data() = $data/row[ @id = "pictures" ]/cell/@id/data() ]/data()
-  order by $p
-  return $p
-
-let $newPicPath := 
- for $picRec in $xmlTpl//w:drawing[ wp:inline/wp:docPr/@title/data() = $picTitleToReplace ]
- order by $picRec/wp:inline/wp:docPr/@title/data()
- let $picId := $picRec//a:blip/@r:embed/data()
- let $picLink := "word/" || xs:string( $rels/child::*/child::*[ @Id = $picId ]/@Target/data() )
- return $picLink
-
-(: --- Фрагмент для отладки -------------- :) 
-let $picID := 
- for $picRec in $xmlTpl//w:drawing[ wp:inline/wp:docPr/@title/data() = $picTitleToReplace ]
- order by $picRec/wp:inline/wp:docPr/@title/data()
- let $picId := $picRec//a:blip/@r:embed/data()
- let $picLink := "word/" || xs:string( $rels/child::*/child::*[ @Id = $picId ]/@Target/data() )
- return $picId || $picRec/wp:inline/wp:docPr/@title/data()
-(: --- конец фрагмента для отладки -------------- :) 
-
-let $newPicBin := 
-  for $p in  $data/row[ @id = "pictures" ]/cell[ @id = $picTitleToReplace ]
-  order by   $p/@id/data()
-  return xs:base64Binary( $p/text() )
-
-return 
-  (
-     file:write-text( config:param( 'logDir' ) || "replacePicturesInTemplate.log", 
-     string-join( $picTitleToReplace,  '&#xd;&#xa;' ) || '&#xd;&#xa;' ||
-     string-join( $newPicPath, '&#xd;&#xa;')  || '&#xd;&#xa;' ||
-     string-join( $picID, '&#xd;&#xa;')  || '&#xd;&#xa;' ||
-     string-join( $data/row[ @id = "pictures" ]/cell[ @id = $picTitleToReplace ]/@id/data(), '&#xd;&#xa;') ||  '&#xd;&#xa;' ||
-     serialize( $data ) 
-    ),
-     archive:update( 
-      $template, $newPicPath,  $newPicBin
-   )
-  )
+  let $drawingNodes :=  
+    $xmlTpl//w:drawing[ wp:inline/wp:docPr/@title[ data() = $data/row[ @id = "pictures" ]/cell/@id/data() ] ]
+  
+  let $picTitleToReplace := 
+    for $p in $drawingNodes/wp:inline/wp:docPr/@title/data()
+    order by $p
+    return $p
+  
+  let $newPicPath :=   
+      map:merge(
+       for $picRec in $drawingNodes
+       let $picName := $picRec/wp:inline/wp:docPr/@title/data()
+       let $picId := $picRec//a:blip/@r:embed/data()
+       let $picLink := "word/" || xs:string( $rels/child::*/child::*[ @Id = $picId ]/@Target/data() )
+       order by $picName
+       return  
+         map:entry(
+           $picLink,
+           (
+             $picName,
+             xs:base64Binary(
+               $data/row[ @id = "pictures" ]/cell[ @id = $picName ]/text()
+             )
+           )
+         )
+       )
+   
+  let $newPicBin := 
+    for $p in  $data/row[ @id = "pictures" ]/cell[ @id = $picTitleToReplace ]
+    order by $p/@id/data()
+    return xs:base64Binary( $p/text() )
+  
+  let $mediaList :=
+    archive:entries( $template )[ starts-with( text(), "word/media/" ) ]/string()
+    
+  let $newPicBin := 
+    for $i in $mediaList
+    return 
+      if( map:contains( $newPicPath, $i ) )
+      then(
+        map:get( $newPicPath, $i )[2]
+      )
+      else(
+        archive:extract-binary( $template, $i )
+      )
+  
+  return 
+    (
+      file:write-text(
+         config:param( 'logDir' ) || "replacePicturesInTemplate.log",
+             string-join( $picTitleToReplace,  '&#xd;&#xa;' ) || '&#xd;&#xa;' ||
+             string-join( "",  '&#xd;&#xa;' ) || '&#xd;&#xa;'  ||
+             serialize( $data )  
+      ),
+       archive:update( 
+        $template,
+        $mediaList,
+        $newPicBin
+       )
+    )
 };
