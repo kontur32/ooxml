@@ -34,12 +34,9 @@ let $mediaList := archive:entries( $a )[ starts-with( text(), "word/media/" ) ]/
 let $docList := ( 'word/document.xml', 'word/_rels/document.xml.rels', $mediaList )
 let $result := for-each( $docList,  local:compare( $a, $b, ? ) )
 return 
-    if ( sum( $result ) = 0 )
-    then(
-      0
-    )
-    else(
+(
       for $i in 1 to count( $docList )
       return
-        $docList[ $i ] || " : " ||  local:compare( $a, $b, $docList[ $i ] )
+        $docList[ $i ] || " : " ||  local:compare( $a, $b, $docList[ $i ] ),
+      "Итог : " || sum( $result )
     )
