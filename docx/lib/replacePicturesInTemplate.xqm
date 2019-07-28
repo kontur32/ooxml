@@ -9,7 +9,7 @@ declare namespace a = "http://schemas.openxmlformats.org/drawingml/2006/main";
 
 (:~
  : Эта функция вставляет изображения в шаблон документа.
- : @param $template  шаблон в формате docx  в формате xs:base64Binary
+ : @param $template  шаблон в docx  в формате xs:base64Binary
  : @param $data  данные для заполения шаблона в формате TRCI
  : @return возвращает обработанный шаблон в формате xs:base64Binary
  :)
@@ -58,7 +58,7 @@ let $newPicBin :=
 
 return 
   (
-    file:write-text( config:param( 'logDir' ) || "replacePicturesInTemplate.log", 
+     file:write-text( config:param( 'logDir' ) || "replacePicturesInTemplate.log", 
      string-join( $picTitleToReplace,  '&#xd;&#xa;' ) || '&#xd;&#xa;' ||
      string-join( $newPicPath, '&#xd;&#xa;')  || '&#xd;&#xa;' ||
      string-join( $picID, '&#xd;&#xa;')  || '&#xd;&#xa;' ||
