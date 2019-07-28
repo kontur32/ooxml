@@ -39,55 +39,41 @@ function pic:replacePicturesInTemplate (
     return $p
   
   let $newPicPath :=   
-      map:merge(
        for $picRec in $drawingNodes
        let $picName := $picRec/wp:inline/wp:docPr/@title/data()
        let $picId := $picRec//a:blip/@r:embed/data()
        let $picLink := "word/" || xs:string( $rels/child::*/child::*[ @Id = $picId ]/@Target/data() )
        order by $picName
        return  
-         map:entry(
-           $picLink,
-           (
-             $picName,
-             xs:base64Binary(
-               $data/row[ @id = "pictures" ]/cell[ @id = $picName ]/text()
-             )
-           )
-         )
-       )
-   
+          $picLink   
+  
   let $newPicBin := 
     for $p in  $data/row[ @id = "pictures" ]/cell[ @id = $picTitleToReplace ]
     order by $p/@id/data()
     return xs:base64Binary( $p/text() )
-  
-  let $mediaList :=
-    archive:entries( $template )[ starts-with( text(), "word/media/" ) ]/string()
-    
-  let $newPicBin := 
-    for $i in $mediaList
-    return 
-      if( map:contains( $newPicPath, $i ) )
-      then(
-        map:get( $newPicPath, $i )[2]
-      )
-      else(
-        archive:extract-binary( $template, $i )
-      )
-  
+
   return 
     (
-      file:write-text(
+      pic:log(
          config:param( 'logDir' ) || "replacePicturesInTemplate.log",
-             string-join( $picTitleToReplace,  '&#xd;&#xa;' ) || '&#xd;&#xa;' ||
-             string-join( "",  '&#xd;&#xa;' ) || '&#xd;&#xa;'  ||
-             serialize( $data )  
+             ( $picTitleToReplace, $newPicPath,  serialize( $data ) ) 
       ),
        archive:update( 
         $template,
-        $mediaList,
+        $newPicPath,
         $newPicBin
        )
+    )
+};
+
+declare function pic:log( $logPath, $param ){
+  let $logRec := 
+    for $i in $param
+    return
+      string-join( $i,  '&#xd;&#xa;' )
+   return
+     file:write-text( 
+       $logPath,
+       string-join( $logRec, '&#xd;&#xa;' )
     )
 };
