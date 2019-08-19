@@ -8,9 +8,8 @@ declare namespace w = "http://schemas.openxmlformats.org/wordprocessingml/2006/m
 (:~
  : АЛЬФА-версия
  : Эта функция возвращает поля из шаблона в виде стоки.
- : @param $template  шаблон в формате w:document
- : @param $data  данные для заполения шаблона в формате TRCI
- : @return возвращает обработанный w:document
+ : @param $template  шаблон
+ : @return возвращает список полей
  :)
 declare
   %rest:POST
@@ -25,19 +24,5 @@ function docx:getFieldsAsString ( $template as xs:base64Binary ) {
           archive:extract-text( $template,  'word/document.xml' )
       )/w:document
     return
-    serialize (
-    <csv>
-    { 
-      for $i in fields:getFieldsAsString ( $xmlTpl )
-      return 
-        <record>
-          <label>{$i}</label>
-        </record>
-    }
-    </csv>,
-    map {
-    'method': 'csv',
-    'csv': map { 'header': 'no'}
-    }
-   )
+      string-join( fields:getFieldsAsString ( $xmlTpl ), "&#xd;" ) (: добавляет конец строки:)
 };
