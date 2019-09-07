@@ -19,16 +19,40 @@ function fields:getFieldsAsString (
 ) as xs:string* {
   let $fieldsList :=
      for $p in $template//w:p[ w:r[ w:fldChar ] ]
-     for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
-     let $fieldsToBeReplaсed := $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
-     return 
-        normalize-space( string-join( $fieldsToBeReplaсed ) )
+       for  $r in $p/w:r[ w:fldChar/@w:fldCharType="begin" ]
+       let $pos := 
+          if( $p/../../../../name() = "w:body" )
+          then(
+            count( $p/../../../preceding-sibling::* ) + 1 
+          )
+          else(
+            count( $p/preceding-sibling::* ) + 1
+          )
+       let $fieldsToBeReplaсed := 
+         string-join(
+           $r/following-sibling::*[ position() <= fields:endPos( $r ) ]
+         )
+       return 
+          normalize-space(  $fieldsToBeReplaсed || " ; position :: " || $pos )  
   let $picList := 
-    for $pic in $template//w:drawing/wp:inline/wp:docPr/@title/data()
+    for $pic in $template//w:drawing
+    let $picLabel := $pic/wp:inline/wp:docPr/@title/data()
+    where $picLabel
+    let $pos := 
+      if( $pic/../../../../../name() = "w:tbl" )
+      then(
+        count( $pic/../../../../../preceding-sibling::* ) + 1
+      )
+      else(
+        count( $pic/parent::*/parent::*/preceding-sibling::* ) + 1
+      )
     return 
-      $pic || " ; inputType :: img "
+       $picLabel || " ; inputType :: img " || " ; position :: " || $pos
   return 
-    ( $fieldsList, $picList )
+    for $i in ( $fieldsList, $picList )
+    order by xs:integer( substring-after( $i, "position :: " ) )
+    return 
+      $i
 };
 
 
