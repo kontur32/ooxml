@@ -8,7 +8,7 @@ declare
   %public
 function 
   parse:xlsx( $data as xs:base64Binary )
-as element( data ){
+as element( file ){
   let $sheetsList := archive:entries($data )[contains( ./text(), 'xl/worksheets/sheet')]/text()
   let $rels1 := parse-xml( archive:extract-text( $data, 'xl/_rels/workbook.xml.rels') )
   let $rels2 := parse-xml( archive:extract-text( $data, 'xl/workbook.xml') )
@@ -22,5 +22,5 @@ as element( data ){
      xlsx:binary-row-to-TRCI( xs:base64Binary( $data ), $sheetPath )
      update insert node attribute {'label'} { $sheetName } into .
   return
-    <data>{ $trci }</data>
+    <file>{ $trci }</file>
 };
