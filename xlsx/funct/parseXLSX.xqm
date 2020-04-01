@@ -69,10 +69,14 @@ function xlsx:row-to-TRCI(
         element { QName( '', 'row' ) }
           { 
           for $cell in $row/c (: $row/c[v/text()] :)
+          count $count
+          let $position := count( $cell/preceding-sibling::* ) + 1
+          where $count <= count( $heads )
+          let $label := $heads[ $position ]
           return 
               element { QName( '','cell' ) } 
                 {
-                  attribute { 'label' } { $heads[count($cell/preceding-sibling::*)+1] }, 
+                  attribute { 'label' } { $label }, 
                   $cell/v/text()
                 }
           }
