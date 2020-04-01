@@ -65,6 +65,7 @@ function xlsx:row-to-TRCI(
     element { QName( '', 'table' ) }
       {    (: $data-sheet//row[position()>1 and normalize-space (string-join(c/v/text()))] :)
       for $row in $data-sheet//row[ position() > 1 ]
+      where not( empty( $row/c/v/text() ) )
       return
         element { QName( '', 'row' ) }
           { 
