@@ -9,7 +9,7 @@
 module  namespace xlsx = 'http://iro37.ru.ru/xq/modules/xlsx';
 
 declare default element namespace "http://schemas.openxmlformats.org/spreadsheetml/2006/main";
-declare namespace r="http://schemas.openxmlformats.org/officeDocument/2006/relationships";
+declare namespace r = "http://schemas.openxmlformats.org/officeDocument/2006/relationships";
 
 (:~
  : Функция заменяет строковыми значениями индексы в текстовых ячейках 
@@ -35,8 +35,8 @@ function xlsx:index-to-text(
   let $new := 
           copy $c := $data-sheet 
           modify 
-                for $i in $c//c[@t='s']
-                return replace value of node $i/v with $strings[number($i/v/text())+1]/text()
+                for $i in $c//c[ @t = 's']
+                return replace value of node $i/v with $strings[ number( $i/v/text() ) + 1 ]/text()
           return $c
   return $new
 };
@@ -65,14 +65,14 @@ function xlsx:row-to-TRCI(
     element { QName( '', 'table' ) }
       {    (: $data-sheet//row[position()>1 and normalize-space (string-join(c/v/text()))] :)
       for $row in $data-sheet//row[ position() > 1 ]
-      where not( empty( $row/c/v/text() ) ) or 1
+      where not( empty( $row/c/v/text() ) )
       return
         element { QName( '', 'row' ) }
           { 
           for $cell in $row/c (: $row/c[v/text()] :)
           count $count
           let $position := count( $cell/preceding-sibling::* ) + 1
-          where $count <= count( $heads ) or 1
+          where $count <= count( $heads )
           let $label := $heads[ $position ]
           return 
               element { QName( '','cell' ) } 
@@ -90,7 +90,7 @@ function xlsx:col-to-TRCI(
   $data-sheet as document-node()
 ) as element ()
 {  
-  let $rows :=  $data-sheet//row[c[1]/v[normalize-space(text())]] (: непустые строки:)  
+  let $rows :=  $data-sheet//row[ c[ 1 ]/v[ normalize-space( text() ) ] ] (: непустые строки:)  
   let $col-numbers := 
     max (
       for $i in $rows
