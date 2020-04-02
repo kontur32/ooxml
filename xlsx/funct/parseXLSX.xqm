@@ -31,12 +31,12 @@ function xlsx:index-to-text(
     $strings-sheet as document-node() 
   ) as node()
 {
-  let $strings := $strings-sheet//t
+  let $strings := $strings-sheet/sst/si
   let $new := 
           copy $c := $data-sheet 
           modify 
-                for $i in $c//c[ @t = 's']
-                return replace value of node $i/v with $strings[ number( $i/v/text() ) + 1 ]/text()
+                for $i in $c//c[ @t = 's' ]
+                return replace value of node $i/v with $strings[number($i/v/text())+1]//t/text()
           return $c
   return $new
 };
