@@ -59,21 +59,25 @@ function xlsx:row-to-TRCI(
 ) as element()
 {
   let $heads := 
-      for $cell in $data-sheet//row[ 1 ]
-      return $cell//v/text()
+      for $cell in $data-sheet//row[ 1 ]/c
+      count $c
+      where $cell/v/text()
+      return 
+       [ $c,  $cell/v/data() ]
   return 
     element { QName( '', 'table' ) }
-      {    (: $data-sheet//row[position()>1 and normalize-space (string-join(c/v/text()))] :)
+      {
       for $row in $data-sheet//row[ position() > 1 ]
       where not( empty( $row/c/v/text() ) )
       return
         element { QName( '', 'row' ) }
           { 
-          for $cell in $row/c (: $row/c[v/text()] :)
+          for $cell in $row/c 
           count $count
           let $position := count( $cell/preceding-sibling::* ) + 1
-          where $count <= count( $heads )
-          let $label := $heads[ $position ]
+          (: where $count <= count( $heads ) :)
+          where $count = $heads?1
+          let $label := $heads[ ?1 = $position ]?2
           return 
               element { QName( '','cell' ) } 
                 {
