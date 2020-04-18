@@ -36,9 +36,10 @@ function xlsx:index-to-text(
           copy $c := $data-sheet 
           modify 
                 for $i in $c//c[ @t = 's' ]
-                return replace value of node $i/v with $strings[number($i/v/text())+1]//t/text()
+                return replace value of node $i/v with $strings[ number( $i/v/text() ) + 1 ]//t/text()
           return $c
-  return $new
+  return
+    $new
 };
 
 (:~
@@ -60,17 +61,34 @@ function xlsx:row-to-TRCI(
 {
   let $heads := 
       for $cell in $data-sheet//row[ 1 ]/c
-      count $c
       where $cell/v/text()
       return 
-       [ $c,  $cell/v/text() ]
- 
+       [ $cell/v/text(),  replace( $cell/@r/data(), "\d", "" ) ]
+  
+  let $log := 
+    file:write-text(
+      'webapp/ooxml/xlsx/logs/xlsx.RowToTRCI.log',
+      serialize( $heads )
+    )
+  
+  let $log := 
+    file:write-text(
+      'webapp/ooxml/xlsx/logs/xlsx.RowToTRCI.data-sheet.log',
+      serialize( $data-sheet )
+    )
+  
   let $maxRows := 
      for $row in $data-sheet//row[ position() >= 2 ]
-     count $c
-     where $row/c[ position() = $heads?1 ]/v/text()
+     count $count
+     let $cells := 
+       for $c in $row/c
+       where replace( $c/@r/data(), "\d", "" ) = $heads?2
+       return
+         $c/v/text()
+     where $cells
+     (: where $row/c[ position() = $heads?1 ]/v/text() :)
      return
-       $c
+       $count
   
   return 
     element { QName( '', 'table' ) }
@@ -79,16 +97,14 @@ function xlsx:row-to-TRCI(
         return
           element { QName( '', 'row' ) }
             { 
-            for $cell in $row/c 
-            count $count
-            where $count = $heads?1
-            let $label := $heads[ ?1 = $count ]?2
-            return 
-                element { QName( '','cell' ) } 
-                  {
-                    attribute { 'label' } { $label }, 
-                    $cell/v/text()
-                  }
+              for $head in $heads 
+              let $label := $head?1
+              return 
+                  element { QName( '','cell' ) } 
+                    {
+                      attribute { 'label' } { $label }, 
+                      $row/c[ replace( @r/data(), "\d", "" ) = $head?2 ]/v/text() 
+                    }
             }
       }
 };
