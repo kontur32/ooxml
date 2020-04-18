@@ -56,55 +56,46 @@ function xlsx:index-to-text(
 declare 
   %public
 function xlsx:row-to-TRCI(
-  $data-sheet as document-node()
+  $лист as document-node()
 ) as element()
 {
-  let $heads := 
-      for $cell in $data-sheet//row[ 1 ]/c
-      where $cell/v/text()
+  let $данныеЛиста := $лист/worksheet/sheetData
+  let $заголовки := 
+      for $ячейка in $данныеЛиста/row[ 1 ]/c
+      where $ячейка/v/text()
       return 
-       [ $cell/v/text(),  replace( $cell/@r/data(), "\d", "" ) ]
-  (:
-  let $log := 
-    file:write-text(
-      'webapp/ooxml/xlsx/logs/xlsx.RowToTRCI.log',
-      serialize( $heads )
-    )
-  
-  let $log := 
-    file:write-text(
-      'webapp/ooxml/xlsx/logs/xlsx.RowToTRCI.data-sheet.log',
-      serialize( $data-sheet )
-    )
-  :)
-  
-  let $maxRows := 
-     for $row in $data-sheet//row[ position() >= 2 ]
-     count $count
-     let $cells := 
-       for $c in $row/c
-       where replace( $c/@r/data(), "\d", "" ) = $heads?2
+        map{
+          "метка" : $ячейка/v/text(),
+          "колонка" : replace( $ячейка/@r/data(), "\d", "" )
+        }
+
+  let $номераСтрокСДанными := 
+     for $строка in $данныеЛиста/row
+     count $номерПоПорядку
+     let $ячейки := 
+       for $c in $строка/c
+       where replace( $c/@r/data(), "\d", "" ) = $заголовки?колонка
        return
          $c/v/text()
-     where $cells
-     (: where $row/c[ position() = $heads?1 ]/v/text() :)
+     where $ячейки
      return
-       $count
+       $номерПоПорядку
   
   return 
     element { QName( '', 'table' ) }
       {
-        for $row in $data-sheet//row[ position() >= 2 and position() <= max( $maxRows ) + 1 ]
+        for $row in $данныеЛиста/row[ position() >= 2 and position() <= max( $номераСтрокСДанными ) ]
         return
           element { QName( '', 'row' ) }
             { 
-              for $head in $heads 
-              let $label := $head?1
+              for $заголовок in $заголовки
+              let $значениеЯчейки :=
+                $row/c[ replace( @r/data(), "\d", "" ) = $заголовок?колонка ]/v/text() 
               return 
                   element { QName( '','cell' ) } 
                     {
-                      attribute { 'label' } { $label }, 
-                      $row/c[ replace( @r/data(), "\d", "" ) = $head?2 ]/v/text() 
+                      attribute { 'label' } { $заголовок?метка }, 
+                      $значениеЯчейки
                     }
             }
       }
