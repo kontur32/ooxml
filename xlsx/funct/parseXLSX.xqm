@@ -64,7 +64,7 @@ function xlsx:row-to-TRCI(
       where $cell/v/text()
       return 
        [ $cell/v/text(),  replace( $cell/@r/data(), "\d", "" ) ]
-  
+  (:
   let $log := 
     file:write-text(
       'webapp/ooxml/xlsx/logs/xlsx.RowToTRCI.log',
@@ -76,6 +76,7 @@ function xlsx:row-to-TRCI(
       'webapp/ooxml/xlsx/logs/xlsx.RowToTRCI.data-sheet.log',
       serialize( $data-sheet )
     )
+  :)
   
   let $maxRows := 
      for $row in $data-sheet//row[ position() >= 2 ]
