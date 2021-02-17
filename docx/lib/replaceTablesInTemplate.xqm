@@ -19,7 +19,7 @@ function tables:replaceTablesInTemplate (
     return
     $template update    
     
-    let $tablesTemplate := ./w:body/w:tbl
+    let $tablesTemplate := ./w:body//w:tbl
     
     for $tbl in $tablesTemplate
     let $tablesName := $tbl/w:tblPr/w:tblCaption/@w:val/data()
