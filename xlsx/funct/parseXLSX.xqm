@@ -134,6 +134,20 @@ function xlsx:col-to-TRCI(
 
 declare 
   %public
+function xlsx:binary-to-TRCI(
+  $file as xs:base64Binary, 
+  $sheetPath as xs:string,
+  $IsColumnDirection as xs:boolean
+) as element()
+{
+  if($IsColumnDirection)
+  then(xlsx:binary-col-to-TRCI($file, $sheetPath))
+  else(xlsx:binary-row-to-TRCI($file, $sheetPath))
+};
+
+
+declare 
+  %public
 function xlsx:binary-row-to-TRCI(
   $file as xs:base64Binary, 
   $sheet-path as xs:string 
