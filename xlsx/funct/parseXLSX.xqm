@@ -132,6 +132,7 @@ function xlsx:col-to-TRCI(
    }
 };
 
+(: трансформирует один лист $sheetPath книги в $file TRCI:)
 declare 
   %public
 function xlsx:binary-to-TRCI(
